@@ -18,11 +18,17 @@ public class Main
         Game game = new Game();
 
 
-        Score sc = Result.ranking(deck.getDeck());
+//        Score sc = Result.ranking(deck.getDeck());
 
-//        game.addPlayer(new Player("Matthiew"));
-//        game.addPlayer(new Player("Andrew"));
-//        game.addPlayer(new Player("Johnny"));
+
+
+        game.addPlayer(new Player("Matthiew"));
+        game.addPlayer(new Player("Andrew"));
+        game.addPlayer(new Player("Johnny"));
+
+
+        game.givePlayersCars(deck);
+        game.showCards();
 //
 //        game.start();
 //        game.givePlayersCars(deck);

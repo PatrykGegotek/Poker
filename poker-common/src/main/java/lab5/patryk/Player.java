@@ -1,5 +1,6 @@
 package lab5.patryk;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Scanner;
 import java.util.Vector;
@@ -13,7 +14,7 @@ public class Player {
 
     Player(String name) {
         this.name = name;
-        cards = new Vector<>(7);
+        cards = new Vector<>(5);
         moneyLeft = 500;
         moneyOnTable = 0;
     }
@@ -22,11 +23,16 @@ public class Player {
         cards.add(card);
     }
 
+    public void sortCards() {
+        Collections.sort(this.cards, new SortBySuit());
+        Collections.sort(this.cards, new SortByRank());
+    }
+
     public void showYourCards() {
-        if (cards.get(1) != null) {
-            System.out.printf("Your current cards, %s:\n", name);
-            System.out.println(cards.get(0));
-            System.out.println(cards.get(1));
+        System.out.printf("Your cards, %s:\n", name);
+        int i = 1;
+        for (Card card: cards) {
+            System.out.println(Integer.toString(i++) + ". " + card);
         }
     }
 
