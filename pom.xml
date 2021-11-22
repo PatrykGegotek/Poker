@@ -8,6 +8,7 @@
     <artifactId>poker</artifactId>
     <packaging>pom</packaging>
     <version>1.0-SNAPSHOT</version>
+
     <modules>
         <module>poker-model</module>
         <module>poker-common</module>
