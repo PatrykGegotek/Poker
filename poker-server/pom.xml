@@ -55,7 +55,7 @@
           </descriptorRefs>
           <archive>
             <manifest>
-              <mainClass>lab5.patryk.App</mainClass>
+              <mainClass>lab5.patryk.Server</mainClass>
             </manifest>
           </archive>
         </configuration>

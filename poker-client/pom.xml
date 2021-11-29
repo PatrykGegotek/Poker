@@ -59,7 +59,7 @@
           </descriptorRefs>
           <archive>
             <manifest>
-              <mainClass>lab5.patryk.Main</mainClass>
+              <mainClass>lab5.patryk.Client</mainClass>
             </manifest>
           </archive>
         </configuration>
