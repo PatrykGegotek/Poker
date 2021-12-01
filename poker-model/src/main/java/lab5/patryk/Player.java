@@ -11,12 +11,14 @@ public class Player {
     List<Card> cards;
     int moneyLeft;
     int moneyOnTable;
+    boolean isAllIn;
 
     Player(String name) {
         this.name = name;
         cards = new Vector<>(5);
         moneyLeft = 500;
         moneyOnTable = 0;
+        isAllIn = false;
     }
 
     public void receiveCard(Card card) {
@@ -36,13 +38,18 @@ public class Player {
         }
     }
 
-    public int putMoneyOnTable() {
-        Scanner scanner = new Scanner(System.in);
-        System.out.printf("%s, how much money do you want to put on the table\n", name);
-        int propMoney = scanner.nextInt();
-        this.moneyLeft -= propMoney;
-        System.out.printf("You have left %d$\n", moneyLeft);
-        return propMoney;
+    public String showCards() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("Your cards, ").append(name).append(":\n");
+        int i = 1;
+        for (Card card: cards) {
+            builder.append(i++).append(". ").append(card).append("\n");
+        }
+        return builder.toString();
+    }
+
+    public void putMoneyOnTable(int money) {
+        this.moneyLeft -= money;
     }
 
     public String getName() {

@@ -1,86 +1,45 @@
 package lab5.patryk;
-
 import java.io.*;
-import java.net.Socket;
+import java.net.*;
+import java.util.Scanner;
+import java.util.concurrent.TimeUnit;
 
 public class Client
 {
-    private Socket socket;
-    private DataInputStream input;
-    private DataOutputStream output;
-    private BufferedReader bufferedReader;
+    final static int ServerPort = 1234;
 
-    public Client(String address, int port) {
+    public static void main(String[] args) throws UnknownHostException, IOException {
+        Scanner scanner = new Scanner(System.in);
+        InetAddress ip = InetAddress.getByName("localhost");
+        Socket s = new Socket(ip, ServerPort);
 
-        try
-        {
-            socket = new Socket(address, port);
-            bufferedReader = new BufferedReader(new InputStreamReader(System.in));
-            System.out.println("Connected");
-
-            input = new DataInputStream(socket.getInputStream());
-            output = new DataOutputStream(socket.getOutputStream());
-        } catch (IOException u) {
-            System.out.println(u);
-        }
-
-        communicate();
-        close();
-
-    }
-
-    void communicate() {
-        String messageTo = "";
+        DataInputStream in = new DataInputStream(s.getInputStream());
+        DataOutputStream out = new DataOutputStream(s.getOutputStream());
         String messageFrom = "";
+        String messageTo;
 
-        while(!messageTo.equals("Exit")) {
-            try {
-                System.out.println("Message to server:");
-                messageTo = bufferedReader.readLine();
-                output.writeUTF(messageTo);
-                output.flush();
-                System.out.println("Message from server:");
-                messageFrom = input.readUTF();
-                System.out.println(messageFrom);
-            }
-            catch (IOException u) {
-                System.out.println(u);
-                break;
-            }
-        }
-    }
-
-    void close() {
         try {
-            System.out.println("Closing connection");
-            bufferedReader.close();
-            input.close();
-            output.close();
-            socket.close();
+            while(true) {
+                messageFrom = in.readUTF();
+
+                if (messageFrom.equals("Exit")) {
+                    break;
+                }
+                else if (messageFrom.equals("Provide your name: ")) {
+                    System.out.println(messageFrom);
+                    TimeUnit.SECONDS.sleep(2);
+                    messageTo = scanner.nextLine();
+                    out.writeUTF(messageTo);
+                } else
+                System.out.println(messageFrom);
+
+            }
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
         }
-        catch (IOException u) {
-            System.out.println(u);
-        }
-    }
 
+        if(messageFrom.equals("Exit")) s.close();
 
-    public static void main( String[] args )
-    {
-
-        Client client = new Client("127.0.0.1", 4444);
-
-
-
-//        Deck deck = new Deck();
-//        Game game = new Game();
-//
-////        Score sc = Result.ranking(deck.getDeck());
-//
-//        game.addPlayer(new Player("Matthiew"));
-//        game.addPlayer(new Player("Andrew"));
-//        game.addPlayer(new Player("Johnny"));
-//
-//        game.givePlayersCars(deck);
-//        game.showCards();
     }
 }
+
