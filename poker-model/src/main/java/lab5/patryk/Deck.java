@@ -4,9 +4,9 @@ import java.util.*;
 
 public class Deck {
 
-    private List<Card> deck;
+    public List<Card> deck;
 
-    Deck() {
+    public Deck() {
         deck = new LinkedList<>();
         for(Card.Suit suit: Card.Suit.values())
             for(Card.Rank rank: Card.Rank.values()) {

@@ -9,25 +9,25 @@ public class Result {
 
     public Result(List<Card> cards) {
         this.cards = cards;
+        Collections.sort(cards, new SortByRank());
     }
 
     // returns number from 1 to 10 depending on the poker hand ranking
     public Score ranking() {
-        Collections.sort(cards, new SortByRank());
-        Score score = royalFlush(cards);
-        if(score == null) score = straightFlush(cards);
-        if(score == null) score = fourOfAKind(cards);
-        if(score == null) score = fullHouse(cards);
-        if(score == null) score = flush(cards);
-        if(score == null) score = straight(cards);
-        if(score == null) score = three(cards);
-        if(score == null) score = twoPairs(cards);
-        if(score == null) score = onePair(cards);
-        if(score == null) score = highCard(cards);
+        Score score = royalFlush();
+        if(score == null) score = straightFlush();
+        if(score == null) score = fourOfAKind();
+        if(score == null) score = fullHouse();
+        if(score == null) score = flush();
+        if(score == null) score = straight();
+        if(score == null) score = three();
+        if(score == null) score = twoPairs();
+        if(score == null) score = onePair();
+        if(score == null) score = highCard();
         return score;
     }
 
-    private Score royalFlush(List<Card> cards) {
+    public Score royalFlush() {
 
 
         boolean isRoyal = true;
@@ -45,7 +45,7 @@ public class Result {
             return null;
     }
 
-    private Score straightFlush(List<Card> cards) {
+    public Score straightFlush() {
         Card.Suit colour = cards.get(0).suit;
 
         // Sprawdza color
@@ -55,7 +55,7 @@ public class Result {
             }
         }
 
-        Score score = straight(cards);
+        Score score = straight();
 
         if (score != null) {
             return new Score(9, score.secondaryRank, 0, "Straigh Flush" + score.details.substring(7));
@@ -63,7 +63,7 @@ public class Result {
             return null;
     }
 
-    private Score fourOfAKind(List<Card> cards) {
+    public Score fourOfAKind() {
         boolean isFour = false;
         int secondary = 0;
         Card fifth = cards.get(0);
@@ -91,7 +91,7 @@ public class Result {
             return null;
     }
 
-    private Score fullHouse(List<Card> cards) {
+    public Score fullHouse() {
         boolean isFull = false;
         Card.Rank secondary = null;
         Card.Rank tertiary = null;
@@ -117,7 +117,7 @@ public class Result {
         } else return null;
     }
 
-    private Score flush(List<Card> cards) {
+    public Score flush() {
         boolean isFlush = false;
         if (cards.get(0).rank.equals(cards.get(1).rank) &&
                 cards.get(0).rank.equals(cards.get(2).rank) &&
@@ -131,7 +131,7 @@ public class Result {
     }
 
 
-    private Score straight(List<Card> cards) {
+    public Score straight() {
 
         boolean isStraight = true;
         int secondary = 0;
@@ -176,7 +176,7 @@ public class Result {
             return null;
     }
 
-    private Score three(List<Card> cards) {
+    public Score three() {
         boolean isThree = false;
         int secondary = 0;
         int tetriary = 0;
@@ -205,7 +205,7 @@ public class Result {
         } else return null;
     }
 
-    private Score twoPairs(List<Card> cards) {
+    public Score twoPairs() {
         boolean arePairs = false;
         int secondary = 0;
         int tetriary = 0;
@@ -233,7 +233,7 @@ public class Result {
         } else return null;
     }
 
-    private Score onePair(List<Card> cards) {
+    public Score onePair() {
         boolean isPair = false;
         Card secondary = null;
         for (int i = 0; i < 4; i++) {
@@ -249,7 +249,7 @@ public class Result {
         } else return null;
     }
 
-    private Score highCard(List<Card> cards) {
+    public Score highCard() {
         return new Score(1, cards.get(0).rank.ordinal(), 0, "High card: " + cards.get(0));
     }
 }
