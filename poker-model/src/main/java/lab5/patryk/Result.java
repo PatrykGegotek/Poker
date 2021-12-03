@@ -1,6 +1,5 @@
 package lab5.patryk;
 
-import javax.swing.*;
 import java.util.Collections;
 import java.util.List;
 
@@ -47,8 +46,6 @@ public class Result {
     }
 
     private Score straightFlush(List<Card> cards) {
-
-        int secondary = 0;
         Card.Suit colour = cards.get(0).suit;
 
         // Sprawdza color
@@ -69,14 +66,14 @@ public class Result {
     private Score fourOfAKind(List<Card> cards) {
         boolean isFour = false;
         int secondary = 0;
-        Card fithf = cards.get(0);
+        Card fifth = cards.get(0);
 
         if (cards.get(0).rank.equals(cards.get(1).rank) &&
                 cards.get(0).rank.equals(cards.get(2).rank) &&
                 cards.get(0).rank.equals(cards.get(3).rank)) {
             isFour = true;
             secondary = cards.get(0).rank.ordinal();
-            fithf = cards.get(4);
+            fifth = cards.get(4);
         }
 
         if (cards.get(4).rank.equals(cards.get(1).rank) &&
@@ -88,7 +85,7 @@ public class Result {
 
         if (isFour) {
             String string = "Four of " + cards.get(1).rank.toString() + "\n" +
-                    "Fifth cards: " + fithf;
+                    "Fifth cards: " + fifth;
             return new Score(8, secondary, 0, string);
         } else
             return null;
@@ -97,13 +94,13 @@ public class Result {
     private Score fullHouse(List<Card> cards) {
         boolean isFull = false;
         Card.Rank secondary = null;
-        Card.Rank tetriary = null;
+        Card.Rank tertiary = null;
         if (cards.get(0).rank.equals(cards.get(1).rank) &&
                 cards.get(1).rank.equals(cards.get(2).rank) &&
                 cards.get(3).rank.equals(cards.get(4).rank)) {
             isFull = true;
             secondary = cards.get(0).rank;
-            tetriary = cards.get(4).rank;
+            tertiary = cards.get(4).rank;
         }
 
         if (cards.get(0).rank.equals(cards.get(1).rank) &&
@@ -111,12 +108,12 @@ public class Result {
                 cards.get(3).rank.equals(cards.get(4).rank)) {
             isFull = true;
             secondary = cards.get(4).rank;
-            tetriary = cards.get(0).rank;
+            tertiary = cards.get(0).rank;
         }
 
         if (isFull) {
-            return new Score(7, secondary.ordinal(), tetriary.ordinal(), "House of 3x " + secondary +
-                    ", 2x " + tetriary);
+            return new Score(7, secondary.ordinal(), tertiary.ordinal(), "House of 3x " + secondary +
+                    ", 2x " + tertiary);
         } else return null;
     }
 

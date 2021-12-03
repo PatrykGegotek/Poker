@@ -2,16 +2,15 @@ package lab5.patryk;
 import java.io.*;
 import java.net.*;
 import java.util.Scanner;
-import java.util.concurrent.TimeUnit;
 
 public class Client
 {
-    final static int ServerPort = 1234;
+    static final int SERVER_PORT = 1234;
     static boolean exit = false;
 
-    public static void main(String[] args) throws UnknownHostException, IOException {
+    public static void main(String[] args) throws IOException, InterruptedException {
         InetAddress ip = InetAddress.getByName("localhost");
-        final Socket s = new Socket(ip, ServerPort);
+        final Socket s = new Socket(ip, SERVER_PORT);
         final Scanner scanner = new Scanner(System.in);
         final DataInputStream in = new DataInputStream(s.getInputStream());
         final DataOutputStream out = new DataOutputStream(s.getOutputStream());
@@ -22,6 +21,8 @@ public class Client
         sendMessage.start();
         readMessage.start();
 
+//        readMessage.join();
+//        s.close();
     }
 }
 
@@ -37,11 +38,10 @@ class ReadMessage implements Runnable {
     @Override
     public void run() {
 
-        while (!Client.exit) {
+        while (true) {
             try {
                 String message = in.readUTF();
                 if (message.equals("Exit")) {
-                    Client.exit= true;
                     break;
                 }
                 System.out.println(message);
@@ -49,11 +49,7 @@ class ReadMessage implements Runnable {
                 break;
             }
         }
-        try {
-            s.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        Client.exit = true;
     }
 }
 

@@ -33,14 +33,6 @@ public class Player {
         Collections.sort(this.cards, new SortByRank());
     }
 
-    public void showYourCards() {
-        System.out.printf("Your cards, %s:\n", name);
-        int i = 1;
-        for (Card card: cards) {
-            System.out.println(Integer.toString(i++) + ". " + card);
-        }
-    }
-
     public String showCards() {
         StringBuilder builder = new StringBuilder();
         int i = 1;
@@ -57,18 +49,6 @@ public class Player {
 
     public String getName() {
         return name;
-    }
-
-    public int getMoneyOnTable() {
-        return moneyOnTable;
-    }
-
-    public void setMoneyOnTable(int moneyOnTable) {
-        this.moneyOnTable = moneyOnTable;
-    }
-
-    public int getMoneyLeft() {
-        return moneyLeft;
     }
 
     public void setMoneyLeft(int moneyLeft) {

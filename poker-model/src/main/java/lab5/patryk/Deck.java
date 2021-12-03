@@ -8,16 +8,14 @@ public class Deck {
 
     Deck() {
         deck = new LinkedList<>();
-        int i = 0;
         for(Card.Suit suit: Card.Suit.values())
             for(Card.Rank rank: Card.Rank.values()) {
                 deck.add(new Card(suit, rank));
-                i++;
             }
         shuffle();
     }
 
-    public void shuffle() {
+    private void shuffle() {
         Collections.shuffle(deck);
     }
 
@@ -25,9 +23,5 @@ public class Deck {
         Card a = deck.get(0);
         deck.remove(0);
         return a;
-    }
-
-    public List<Card> getDeck() {
-        return deck;
     }
 }
