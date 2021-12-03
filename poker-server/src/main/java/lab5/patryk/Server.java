@@ -5,6 +5,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Scanner;
 import java.util.Vector;
 
 public class Server {
@@ -29,8 +30,8 @@ public class Server {
             return player;
         }
 
-        public String getClientName() {
-            return clientName;
+        public String getPlayersName() {
+            return player.getName();
         }
 
         public DataOutputStream getOut() {
@@ -46,15 +47,19 @@ public class Server {
 
     private ServerSocket ss;
     private static Vector<Client> clients = new Vector<>();
+    public static Vector<Client> resigned = new Vector<>();
 
-    Server() throws IOException {
+    public Server() throws IOException {
         ss = new ServerSocket(1234);
-        listenForCLients();
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("How many players are going to play?");
+        int amount = scanner.nextInt();
+        listenForCLients(amount);
     }
 
-    void listenForCLients() throws IOException {
+    private void listenForCLients(int amount) throws IOException {
         int i=1;
-        while (i <= 4) {
+        while (i <= amount) {
             Socket socket = ss.accept();
             System.out.println("New client!");
 
@@ -65,13 +70,11 @@ public class Server {
             Client client = new Client("Player" + i++, out, in);
 
             clients.add(client);
-            for (Client cl: clients) {
-                cl.out.writeUTF("Waiting for " + (4 - clients.size()) + " more players" );
-            }
+            writeToAll("Waiting for " + (amount - clients.size()) + " more players");
         }
     }
 
-    void closeConnection() throws IOException {
+    private void closeConnection() throws IOException {
         for (Client client: clients) {
             client.out.writeUTF("Exit");
             client.in.close();
@@ -80,19 +83,36 @@ public class Server {
         ss.close();
     }
 
+    public static void writeToAll(String message) throws IOException {
+        for (Client client: clients) {
+            client.getOut().writeUTF(message);
+        }
+    }
+
 
     public static void main(String[] args) throws IOException, InterruptedException {
-        String message = "";
         Server server = new Server();
+        Scanner scanner = new Scanner(System.in);
         Game game = new Game(clients);
+        String answer = "";
 
         game.startGame();
         game.getNames();
-        game.givePlayersCars();
-        game.showPlayersTheirCards();
-        game.ante();
+        do {
+            game.givePlayersCars();
+            Server.writeToAll("Your cards:\n");
+            game.showPlayersTheirCards();
+            game.ante();
+            game.betting();
+            game.cardsExchange();
+            game.betting();
+            game.checkWhoWins();
+            game.restart();
+            System.out.println("Start new game? (y/n): ");
+            answer = scanner.nextLine();
+        } while (answer.equals("y"));
 
-
+        writeToAll("End of the game\n");
 
         server.closeConnection();
     }

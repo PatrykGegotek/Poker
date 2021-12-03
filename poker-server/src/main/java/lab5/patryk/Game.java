@@ -1,25 +1,26 @@
 package lab5.patryk;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
-import java.util.Vector;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 public class Game {
     private Deck deck;
     private List<Player> players;
     private List<Player> resigned;
-    private int lastRaise;
+    private int maxMoneyPutByPlayers;
     private int moneyOnTable;
     private Vector<Server.Client> clients;
     private String message;
+    private int minimalBet;
 
 
     Game(Vector<Server.Client> clients) {
         players = new ArrayList<>(4);
         resigned = new ArrayList<>(4);
         moneyOnTable = 0;
+        minimalBet = 0;
+        maxMoneyPutByPlayers = 0;
         deck = new Deck();
         this.clients = clients;
         System.out.println("New game begins");
@@ -84,77 +85,252 @@ public class Game {
         }
     }
 
-//    public void start() {
-//        for (Player player: players) {
-//            int propMoney = player.putMoneyOnTable();
-//            moneyOnTable += propMoney;
-//            System.out.printf("%s puts %d$\n\n", player.getName(), propMoney);
-//        }
-//    }
-
-//TODO:
-//    Until the first bet is made each player in turn may "check",
-//    which is to not place a bet, or "open", which is to make the first bet.
-//    After the first bet each player may "fold", which is to drop out of the hand
-//    losing any bets they have already made; "call", which is to match the highest
-//    bet so far made; or "raise", which is to increase the previous high bet.
 
     public void ante() throws IOException{
         for (Server.Client client: clients) {
             int money = client.getPlayer().moneyLeft;
             client.getOut().writeUTF("Every player must put 100$ on the table\nYou start with " +
                      money + "$. After that you'll have " + (money - 100) + "$ left");
-            client.getPlayer().putMoneyOnTable(100);
+            client.getPlayer().setMoneyOnTable(100);
+            client.getPlayer().setMoneyLeft(client.getPlayer().getMoneyLeft() - 100);
             this.putMoneyOnTable(100);
         }
+        maxMoneyPutByPlayers = 100;
     }
 
     public void betting() throws IOException {
-        for (Server.Client client: clients) {
-            client.getOut().writeUTF("It's time to bet.\nDo you want to:\n" +
-                    "Raise(1) \nCheck(2) \nFold(3) \n? \n> ");
-//            do {
-//                message = client.getIn().readUTF();
-//                switch (message) {
-//                    case 1: client.getPlayer().
-//                }
-//
-//            } while
+        for (Server.Client client : clients) {
+            if (client.getPlayer().isAllIn) continue;
+            client.getOut().writeUTF("Do you want to open bet (y/n)? ");
+            message = client.getIn().readUTF();
+
+            if(message.equals("y")) {
+                Server.writeToAll(client.getPlayersName() + " opens bet!\n");
+                startBet(client);
+                askOthersToBet(client);
+                return;
+            } else {
+                Server.writeToAll(client.getPlayersName() + " does not open bet\n");
+            }
+        }
+        Server.writeToAll("None of the players raised the bet\n");
+    }
+
+    public void startBet(Server.Client raisee) throws IOException {
+        Player currPlayer = raisee.getPlayer();
+        message = raisee.getPlayersName() + ", you have " + currPlayer.moneyLeft +
+                "$ left and " + currPlayer.moneyOnTable + "$ put on the table by you.\n" +
+                "In total there is " + moneyOnTable + "$ on the table\n" +
+                "How many dollars do you wish to raise the bet?\n" + "You need to have at least " +
+                maxMoneyPutByPlayers + "$ on the table or go all in!";
+        raisee.getOut().writeUTF(message);
+
+        do {
+            boolean doesNotPass = false;
+            int amount = 0;
+
+            do {
+                try {
+                    doesNotPass = true;
+                    message = raisee.getIn().readUTF();
+                    amount = Integer.parseInt(message);
+                } catch (NumberFormatException e) {
+                    raisee.getOut().writeUTF("Wrong input! Try one more time!\n");
+                    doesNotPass = false;
+                }
+            } while (!doesNotPass);
+
+            if (amount <= 0 || amount > currPlayer.moneyLeft) {
+                raisee.getOut().writeUTF("Wrong number! Try one more time!\n");
+            } else if (amount == currPlayer.moneyLeft) {
+
+                Server.writeToAll(raisee.getPlayersName() + " goes all in!\n");
+                currPlayer.moneyOnTable += currPlayer.moneyLeft;
+                currPlayer.moneyLeft = 0;
+                moneyOnTable += amount;
+                maxMoneyPutByPlayers = currPlayer.getMoneyOnTable();
+                break;
+            } else {
+                Server.writeToAll(raisee.getPlayersName() + " puts " + amount + "$ on the table\n");
+                currPlayer.moneyOnTable += amount;
+                currPlayer.moneyLeft -= amount;
+                moneyOnTable += amount;
+                maxMoneyPutByPlayers = currPlayer.getMoneyOnTable();
+                break;
+            }
+        } while (true);
+    }
+
+    public boolean checkIfHasToGoAllIn(Server.Client client) throws  IOException {
+        Player currPlayer = client.getPlayer();
+        if(maxMoneyPutByPlayers > currPlayer.moneyOnTable + currPlayer.moneyLeft) {
+            message = "You have to go all-in (1) or resign (0)!\n >";
+            client.getOut().writeUTF(message);
+            message = client.getIn().readUTF();
+
+            if (message.equals("1")) {
+                Server.writeToAll(client.getPlayersName() + " goes all in!\n");
+                currPlayer.moneyOnTable += currPlayer.moneyLeft;
+                moneyOnTable += currPlayer.moneyLeft;
+                currPlayer.moneyLeft = 0;
+                currPlayer.isAllIn = true;
+            }
+            else {
+                Server.writeToAll(client.getPlayersName() + " resigns\n");
+                Server.resigned.add(client);
+                this.resigned.add(client.getPlayer());
+                this.players.remove(client.getPlayer());
+            }
+            return true;
+        }
+        return false;
+    }
+
+    public void askOthersToBet(Server.Client raisee) throws IOException {
+        for (Server.Client client : clients) {
+            if (client.equals(raisee) || client.getPlayer().isAllIn) continue;
+            Player currPlayer = client.getPlayer();
+
+            // DOES NOT HAVE ENOUGH MONEY AND HAS TO GO ALL IN
+            if (checkIfHasToGoAllIn(client)) continue;
+
+            do {
+                message = client.getPlayersName() + ", you have " + currPlayer.moneyLeft +
+                        "$ left and " + currPlayer.moneyOnTable + "$ on the table.\n" +
+                        "How many dollars do you wish to raise the bet?\n" + "You need to have at least " +
+                        maxMoneyPutByPlayers + "$ on the table or go all in!\n" +
+                        "If want to resign write '0'\n";
+                client.getOut().writeUTF(message);
+
+                boolean doesNotPass = false;
+                int amount = 0;
+
+                do {
+                    try {
+                        doesNotPass = true;
+                        message = client.getIn().readUTF();
+                        amount = Integer.parseInt(message);
+                    } catch (NumberFormatException e) {
+                        client.getOut().writeUTF("Wrong input! Try one more time!\n");
+                        doesNotPass = false;
+                    }
+                } while (!doesNotPass);
 
 
+                // RESIGNS
+                if(amount == 0) {
+                    Server.writeToAll(client.getPlayersName() + " resigns!\n");
+                    Server.resigned.add(client);
+                    this.resigned.add(client.getPlayer());
+                    this.players.remove(client.getPlayer());
+                    clients.remove(client);
+                    break;
+                }
+                // PUTS MORE THAN IS ABLE TO OR WRONG AMOUNT
+                else if (amount > currPlayer.moneyLeft || amount < 0) {
+                    message = "Wrong value! Try one more time!\n";
+                    client.getOut().writeUTF(message);
+                }
+                // EVENS OUT
+                else if (amount + currPlayer.moneyOnTable == maxMoneyPutByPlayers) {
+                    Server.writeToAll(client.getPlayersName() + " evens out the bet");
+                    currPlayer.moneyOnTable += amount;
+                    currPlayer.moneyLeft -= amount;
+                    moneyOnTable += amount;
+                    break;
+                }
+                // PUTS NOT ENOUGH MONEY
+                else if (maxMoneyPutByPlayers > amount + currPlayer.moneyOnTable) {
+                    message = "You have put not enough money (you have to put at least " +
+                            ((maxMoneyPutByPlayers - currPlayer.moneyOnTable) - amount) +
+                            "$ more)!\n";
+                    client.getOut().writeUTF(message);
+                }
+
+                // PUTS MORE MONEY - START THE BET AGAIN
+                else if (amount + currPlayer.getMoneyOnTable() >= maxMoneyPutByPlayers )
+                {
+                    Server.writeToAll(client.getPlayersName() + " puts more to pool, bet begins anew!\n");
+                    currPlayer.moneyOnTable += amount;
+                    currPlayer.moneyLeft -= amount;
+                    if (currPlayer.moneyLeft == 0) {
+                        Server.writeToAll(client.getPlayersName() + " goes all in!\n");
+                        currPlayer.isAllIn = true;
+                    }
+                    maxMoneyPutByPlayers = currPlayer.moneyOnTable;
+                    moneyOnTable += amount;
+                    askOthersToBet(client);
+                    return;
+                }
+                // PUT WRONG VALUE
+                 else  {
+                     message = "Wrong value! Try one more time!\n";
+                     client.getOut().writeUTF(message);
+                }
+            } while (true);
+        }
+        for (Server.Client client: Server.resigned) {
+            clients.remove(client);
         }
     }
 
-//    public void playersTurn() {
-//        Scanner scanner = new Scanner(System.in);
-//        for (Player player: players) {
-//
-//            player.showYourCards();
-//            System.out.printf("%s, do you want to play[1], resign[2] or exchange your cards[3]??\n", player.getName());
-//            int decision = scanner.nextInt();
-//
-//            while(decision != 1 && decision != 2) {
-//                System.out.println("Wrong number! Try again");
-//                decision = scanner.nextInt();
-//            }
-//
-//            if (decision == 1) {
-//                System.out.printf("%s stays in the game!\n", player.getName());
-//                int propMoney = player.putMoneyOnTable();
-//                moneyOnTable += propMoney;
-//                System.out.printf("%s puts %d$\n\n", player.getName(), propMoney);
-//            } else {
-//                System.out.printf("%s leaves the game\n", player.getName());
-//                resigned.add(player);
-//            }
-//            System.out.println();
-//        }
-//
-//        for (Player player: resigned) {
-//            players.remove(player);
-//        }
-//    }
+    public int Compare(Integer d, Integer d1) {
+        return d - d1;
+    }
 
+    public void cardsExchange() throws IOException {
+        List<Integer> cardsToExchange = new ArrayList<>();
+        showPlayersTheirCards();
+        for (Server.Client client: clients) {
+            client.getOut().writeUTF("Choose which cards you'd like to exchange (separate them by a colon)\n");
+            message = client.getIn().readUTF();
+            for (int i = 0; i < message.length(); i++) {
+                if(Character.isDigit(message.charAt(i))) {
+                    cardsToExchange.add(Integer.parseInt(String.valueOf(message.charAt(i))));
+                }
+            }
+            Collections.sort(cardsToExchange, Collections.<Integer>reverseOrder());
+            for(Integer number: cardsToExchange) {
+                client.getPlayer().removeCard(number - 1);
+            }
+            for (int i = 0; i < cardsToExchange.size(); i++) {
+                client.getPlayer().receiveCard(deck.getCard());
+            }
+            client.getPlayer().sortCards();
+            cardsToExchange.clear();
+        }
+        Server.writeToAll("Your current cards\n");
+        showPlayersTheirCards();
+    }
+
+    void checkWhoWins() throws IOException, InterruptedException {
+        for (Player player: players) {
+            TimeUnit.SECONDS.sleep(1);
+            player.checkCardsCombinations();
+            Server.writeToAll(player.name + "'s cards:");
+            Server.writeToAll(player.showCards());
+            Server.writeToAll(player.name + " has " + player.score.details + "\n");
+        }
+        Collections.sort(players, new SortByScore());
+        Player winner = players.get(0);
+        Server.writeToAll(winner.name + " wins with " + winner.score.details);
+        winner.moneyOnTable = 0;
+        winner.moneyLeft += moneyOnTable;
+        moneyOnTable = 0;
+
+    }
+
+    void restart() {
+        for (Player player: players) {
+            player.score = null;
+            player.moneyOnTable = 0;
+            player.cards.clear();
+            player.isAllIn = false;
+        }
+    }
 
 
 }
+
+
+

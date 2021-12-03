@@ -1,9 +1,6 @@
 package lab5.patryk;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Scanner;
-import java.util.Vector;
+import java.util.*;
 
 public class Player {
 
@@ -12,6 +9,7 @@ public class Player {
     int moneyLeft;
     int moneyOnTable;
     boolean isAllIn;
+    Score score;
 
     Player(String name) {
         this.name = name;
@@ -19,10 +17,15 @@ public class Player {
         moneyLeft = 500;
         moneyOnTable = 0;
         isAllIn = false;
+        score = null;
     }
 
     public void receiveCard(Card card) {
         cards.add(card);
+    }
+
+    public void removeCard(int i) {
+        cards.remove(i);
     }
 
     public void sortCards() {
@@ -40,7 +43,6 @@ public class Player {
 
     public String showCards() {
         StringBuilder builder = new StringBuilder();
-        builder.append("Your cards, ").append(name).append(":\n");
         int i = 1;
         for (Card card: cards) {
             builder.append(i++).append(". ").append(card).append("\n");
@@ -48,8 +50,9 @@ public class Player {
         return builder.toString();
     }
 
-    public void putMoneyOnTable(int money) {
-        this.moneyLeft -= money;
+    public void checkCardsCombinations() {
+        Result result = new Result(cards);
+        score = result.ranking();
     }
 
     public String getName() {
@@ -70,5 +73,16 @@ public class Player {
 
     public void setMoneyLeft(int moneyLeft) {
         this.moneyLeft = moneyLeft;
+    }
+}
+
+class SortByScore implements Comparator<Player> {
+
+    @Override
+    public int compare(Player o1, Player o2) {
+        return              -(o1.score.primaryRank - o2.score.primaryRank) * 144 +
+                            (o1.score.tertiaryRank - o2.score.tertiaryRank) * 12 +
+                            o1.score.tertiaryRank - o2.score.tertiaryRank;
+
     }
 }

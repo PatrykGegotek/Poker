@@ -7,39 +7,79 @@ import java.util.concurrent.TimeUnit;
 public class Client
 {
     final static int ServerPort = 1234;
+    static boolean exit = false;
 
     public static void main(String[] args) throws UnknownHostException, IOException {
-        Scanner scanner = new Scanner(System.in);
         InetAddress ip = InetAddress.getByName("localhost");
-        Socket s = new Socket(ip, ServerPort);
+        final Socket s = new Socket(ip, ServerPort);
+        final Scanner scanner = new Scanner(System.in);
+        final DataInputStream in = new DataInputStream(s.getInputStream());
+        final DataOutputStream out = new DataOutputStream(s.getOutputStream());
 
-        DataInputStream in = new DataInputStream(s.getInputStream());
-        DataOutputStream out = new DataOutputStream(s.getOutputStream());
-        String messageFrom = "";
-        String messageTo;
+        Thread sendMessage = new Thread( new SendMessage(s, out, scanner));
+        Thread readMessage = new Thread( new ReadMessage(s, in));
 
-        try {
-            while(true) {
-                messageFrom = in.readUTF();
-
-                if (messageFrom.equals("Exit")) {
-                    break;
-                }
-                else if (messageFrom.equals("Provide your name: ")) {
-                    System.out.println(messageFrom);
-                    TimeUnit.SECONDS.sleep(2);
-                    messageTo = scanner.nextLine();
-                    out.writeUTF(messageTo);
-                } else
-                System.out.println(messageFrom);
-
-            }
-        } catch (IOException | InterruptedException e) {
-            e.printStackTrace();
-        }
-
-        if(messageFrom.equals("Exit")) s.close();
+        sendMessage.start();
+        readMessage.start();
 
     }
 }
+
+class ReadMessage implements Runnable {
+    Socket s;
+    DataInputStream in;
+
+    ReadMessage(Socket s, DataInputStream in) {
+        this.s = s;
+        this.in = in;
+    }
+
+    @Override
+    public void run() {
+
+        while (!Client.exit) {
+            try {
+                String message = in.readUTF();
+                if (message.equals("Exit")) {
+                    Client.exit= true;
+                    break;
+                }
+                System.out.println(message);
+            } catch (IOException e) {
+                break;
+            }
+        }
+        try {
+            s.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
+
+class SendMessage implements Runnable {
+    Socket s;
+    DataOutputStream out;
+    Scanner scanner;
+
+    SendMessage(Socket s, DataOutputStream out, Scanner scanner) {
+        this.s = s;
+        this.out = out;
+        this.scanner = scanner;
+    }
+
+    @Override
+    public void run() {
+        while (!Client.exit) {
+            String message = scanner.nextLine();
+            try {
+                out.writeUTF(message);
+            } catch (IOException e) {
+                break;
+            }
+        }
+    }
+}
+
+
 
