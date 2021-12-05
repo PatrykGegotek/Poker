@@ -10,19 +10,19 @@ public class Client
 
     public static void main(String[] args) throws IOException, InterruptedException {
         InetAddress ip = InetAddress.getByName("localhost");
-        Socket s = new Socket(ip, SERVER_PORT);
-        final Scanner scanner = new Scanner(System.in);
-        final DataInputStream in = new DataInputStream(s.getInputStream());
-        final DataOutputStream out = new DataOutputStream(s.getOutputStream());
+        try (Socket s = new Socket(ip, SERVER_PORT)) {
+            final Scanner scanner = new Scanner(System.in);
+            final DataInputStream in = new DataInputStream(s.getInputStream());
+            final DataOutputStream out = new DataOutputStream(s.getOutputStream());
 
-        Thread sendMessage = new Thread( new SendMessage(s, out, scanner));
-        Thread readMessage = new Thread( new ReadMessage(s, in));
+            Thread sendMessage = new Thread(new SendMessage(s, out, scanner));
+            Thread readMessage = new Thread(new ReadMessage(s, in));
 
-        sendMessage.start();
-        readMessage.start();
+            sendMessage.start();
+            readMessage.start();
 
-        readMessage.join();
-        s.close();
+            readMessage.join();
+        }
     }
 }
 

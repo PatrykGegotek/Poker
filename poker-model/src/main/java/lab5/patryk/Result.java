@@ -1,5 +1,6 @@
 package lab5.patryk;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -58,7 +59,7 @@ public class Result {
         Score score = straight();
 
         if (score != null) {
-            return new Score(9, score.secondaryRank, 0, "Straigh Flush" + score.details.substring(7));
+            return new Score(9, score.secondaryRank, 0, "Straight Flush" + score.details.substring(8));
         } else
             return null;
     }
@@ -66,13 +67,13 @@ public class Result {
     public Score fourOfAKind() {
         boolean isFour = false;
         int secondary = 0;
-        Card fifth = cards.get(0);
+        Card fifth = null;
 
         if (cards.get(0).rank.equals(cards.get(1).rank) &&
                 cards.get(0).rank.equals(cards.get(2).rank) &&
                 cards.get(0).rank.equals(cards.get(3).rank)) {
             isFour = true;
-            secondary = cards.get(0).rank.ordinal();
+            secondary = cards.get(2).rank.ordinal();
             fifth = cards.get(4);
         }
 
@@ -80,11 +81,12 @@ public class Result {
                 cards.get(4).rank.equals(cards.get(2).rank) &&
                 cards.get(4).rank.equals(cards.get(3).rank)) {
             isFour = true;
-            secondary = cards.get(0).rank.ordinal();
+            secondary = cards.get(2).rank.ordinal();
+            fifth = cards.get(0);
         }
 
         if (isFour) {
-            String string = "Four of " + cards.get(1).rank.toString() + "\n" +
+            String string = "Four of " + cards.get(2).rank.toString() + "\n" +
                     "Fifth cards: " + fifth;
             return new Score(8, secondary, 0, string);
         } else
@@ -118,15 +120,12 @@ public class Result {
     }
 
     public Score flush() {
-        boolean isFlush = false;
-        if (cards.get(0).rank.equals(cards.get(1).rank) &&
-                cards.get(0).rank.equals(cards.get(2).rank) &&
-                cards.get(0).rank.equals(cards.get(3).rank) &&
-                cards.get(0).rank.equals(cards.get(4).rank)) {
-            isFlush = true;
-        }
+        boolean isFlush = cards.get(0).suit.equals(cards.get(1).suit) &&
+                cards.get(0).suit.equals(cards.get(2).suit) &&
+                cards.get(0).suit.equals(cards.get(3).suit) &&
+                cards.get(0).suit.equals(cards.get(4).suit);
         if (isFlush) {
-            return new Score(6, 0, 0, "Flush of " + cards.get(0).rank);
+            return new Score(6, 0, 0, "Flush of " + cards.get(0).suit);
         } else return null;
     }
 
@@ -157,8 +156,9 @@ public class Result {
             if (cards.get(0).rank != Card.Rank.ACE)
                 return null;
             isStraight = true;
+            secondary = 4;
             for (int i = 1; i < 5; i++) {
-                if ((cards.get(i).rank.ordinal() != 5 - i)) {
+                if ((cards.get(i).rank.ordinal() != 4 - i)) {
                     isStraight = false;
                     break;
                 }
@@ -167,9 +167,9 @@ public class Result {
 
         if (isStraight) {
             StringBuilder builder = new StringBuilder();
-            builder.append("Straigh: \n");
+            builder.append("Straight: \n");
             for (int i = 0; i < 5; i++) {
-                builder.append(cards.get(i).rank).append(", ");
+                builder.append(cards.get(i).rank).append(" ");
             }
             return new Score(5, secondary, 0, builder.toString());
         } else
@@ -234,22 +234,36 @@ public class Result {
     }
 
     public Score onePair() {
+        List<Card> leftCards = new ArrayList<>();
+        leftCards.addAll(cards);
         boolean isPair = false;
         Card secondary = null;
         for (int i = 0; i < 4; i++) {
             if (cards.get(i).rank == cards.get(i + 1).rank) {
+                leftCards.remove(cards.get(i));
+                leftCards.remove(cards.get(i+1));
                 isPair = true;
                 secondary = cards.get(i);
                 break;
             }
         }
 
+        int tertiary = leftCards.get(0).rank.ordinal();
+        tertiary = tertiary * 12 + leftCards.get(1).rank.ordinal();
+        tertiary = tertiary * 12 + leftCards.get(2).rank.ordinal();
+
+
+
         if (isPair) {
-            return new Score(2, secondary.rank.ordinal(), 0, "Pair of " + secondary.rank);
+            return new Score(2, secondary.rank.ordinal(), tertiary, "Pair of " + secondary.rank);
         } else return null;
     }
 
     public Score highCard() {
-        return new Score(1, cards.get(0).rank.ordinal(), 0, "High card: " + cards.get(0));
+        int tertiary = cards.get(1).rank.ordinal();
+        tertiary = tertiary * 12 + cards.get(2).rank.ordinal();
+        tertiary = tertiary * 12 + cards.get(3).rank.ordinal();
+        tertiary = tertiary * 12 + cards.get(4).rank.ordinal();
+        return new Score(1, cards.get(0).rank.ordinal(), tertiary, "High card: " + cards.get(0));
     }
 }

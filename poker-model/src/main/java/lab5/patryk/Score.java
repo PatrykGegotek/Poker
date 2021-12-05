@@ -6,7 +6,7 @@ public class Score {
     int primaryRank;
     int secondaryRank;
     int tertiaryRank;
-    String details;
+    public String details;
 
     public Score(int r1, int r2, int r3, String string) {
         primaryRank = r1;
