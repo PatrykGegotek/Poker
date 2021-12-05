@@ -11,7 +11,7 @@ public class TestCards {
     @Test
     public void getFromDeck() {
         Deck deck = new Deck();
-        Card card = deck.deck.get(2);
+        Card card = deck.getDeck().get(2);
         deck.getCard();
         deck.getCard();
         Card card2 = deck.getCard();

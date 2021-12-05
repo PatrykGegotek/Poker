@@ -4,7 +4,7 @@ import java.util.*;
 
 public class Deck {
 
-    public List<Card> deck;
+    private List<Card> deck;
 
     public Deck() {
         deck = new LinkedList<>();
@@ -23,5 +23,9 @@ public class Deck {
         Card a = deck.get(0);
         deck.remove(0);
         return a;
+    }
+
+    public List<Card> getDeck() {
+        return deck;
     }
 }

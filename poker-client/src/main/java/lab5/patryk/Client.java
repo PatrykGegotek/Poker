@@ -23,6 +23,7 @@ public class Client
 
             readMessage.join();
         }
+        System.exit(0);
     }
 }
 

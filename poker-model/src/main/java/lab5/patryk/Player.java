@@ -11,7 +11,7 @@ public class Player {
     boolean isAllIn;
     Score score;
 
-    Player(String name) {
+    public Player(String name) {
         this.name = name;
         cards = new Vector<>(5);
         moneyLeft = 500;
@@ -51,8 +51,12 @@ public class Player {
         return name;
     }
 
-    public void setMoneyLeft(int moneyLeft) {
-        this.moneyLeft = moneyLeft;
+    public List<Card> getCards() {
+        return cards;
+    }
+
+    public Score getScore() {
+        return score;
     }
 }
 
@@ -60,6 +64,8 @@ class SortByScore implements Comparator<Player> {
 
     @Override
     public int compare(Player o1, Player o2) {
+//        if (o1.score.primaryRank )
+
         return              -(o1.score.primaryRank - o2.score.primaryRank) * 144 +
                             (o1.score.tertiaryRank - o2.score.tertiaryRank) * 12 +
                             o1.score.tertiaryRank - o2.score.tertiaryRank;

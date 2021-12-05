@@ -48,12 +48,13 @@ public class Server {
     private ServerSocket ss;
     private static Vector<Client> clients = new Vector<>();
     public static Vector<Client> resigned = new Vector<>();
+    public int amount = 0;
 
     public Server() throws IOException {
         ss = new ServerSocket(1234);
         Scanner scanner = new Scanner(System.in);
         System.out.println("How many players are going to play?");
-        int amount = scanner.nextInt();
+        amount = scanner.nextInt();
         listenForCLients(amount);
     }
 

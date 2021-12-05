@@ -3,9 +3,9 @@ package lab5.patryk;
 import java.util.Objects;
 
 public class Score {
-    int primaryRank;
-    int secondaryRank;
-    int tertiaryRank;
+    public int primaryRank;
+    public int secondaryRank;
+    public int tertiaryRank;
     public String details;
 
     public Score(int r1, int r2, int r3, String string) {
