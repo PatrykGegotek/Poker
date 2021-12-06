@@ -7,10 +7,12 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="poker-client" />
-        <module name="poker-server" />
         <module name="poker-model" />
-        <module name="poker-common" />
+        <module name="poker-server" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="poker-common" target="1.7" />
+    </bytecodeTargetLevel>
   </component>
 </project>

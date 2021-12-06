@@ -34,7 +34,7 @@ public class TestResults {
         Result result = new Result(cards);
         Score score = result.straightFlush();
         StringBuilder builder = new StringBuilder();
-        Collections.sort(cards, new SortByRank());
+        Collections.sort(cards, Collections.<Card>reverseOrder(new SortByRank()));
         builder.append("Straight Flush: \n");
         for (int i = 0; i < 5; i++) {
             builder.append(cards.get(i).rank).append(" ");
@@ -130,7 +130,7 @@ public class TestResults {
         Result result = new Result(cards);
         Score score = result.straight();
         StringBuilder builder = new StringBuilder();
-        Collections.sort(cards, new SortByRank());
+        Collections.sort(cards, Collections.<Card>reverseOrder(new SortByRank()));
         builder.append("Straight: \n");
         for (int i = 0; i < 5; i++) {
             builder.append(cards.get(i).rank).append(" ");
@@ -156,7 +156,7 @@ public class TestResults {
         Result result = new Result(cards);
         Score score = result.straight();
         StringBuilder builder = new StringBuilder();
-        Collections.sort(cards, new SortByRank());
+        Collections.sort(cards, Collections.<Card>reverseOrder(new SortByRank()));
         builder.append("Straight: \n");
         for (int i = 0; i < 5; i++) {
             builder.append(cards.get(i).rank).append(" ");
@@ -282,6 +282,6 @@ class SortByRank implements Comparator<Card> {
 
     @Override
     public int compare(Card o1, Card o2) {
-        return -1 * o1.rank.compareTo(o2.rank);
+        return o1.rank.compareTo(o2.rank);
     }
 }

@@ -29,8 +29,8 @@ public class Player {
     }
 
     public void sortCards() {
-        Collections.sort(this.cards, new SortBySuit());
-        Collections.sort(this.cards, new SortByRank());
+        Collections.sort(this.cards, Collections.<Card>reverseOrder(new SortBySuit()));
+        Collections.sort(this.cards, Collections.<Card>reverseOrder(new SortByRank()));
     }
 
     public String showCards() {
@@ -64,11 +64,15 @@ class SortByScore implements Comparator<Player> {
 
     @Override
     public int compare(Player o1, Player o2) {
-//        if (o1.score.primaryRank )
-
-        return              -(o1.score.primaryRank - o2.score.primaryRank) * 144 +
-                            (o1.score.tertiaryRank - o2.score.tertiaryRank) * 12 +
-                            o1.score.tertiaryRank - o2.score.tertiaryRank;
-
+        if (o1.score.primaryRank == o2.score.primaryRank) {
+            if (o1.score.secondaryRank == o2.score.secondaryRank) {
+                if (o1.score.tertiaryRank == o2.score.tertiaryRank) {
+                    return 0;
+                }
+                else return o1.score.tertiaryRank - o2.score.tertiaryRank;
+            }
+            else return o1.score.secondaryRank - o2.score.secondaryRank;
+        }
+        else return o1.score.primaryRank - o2.score.primaryRank;
     }
 }

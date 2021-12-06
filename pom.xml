@@ -11,7 +11,6 @@
 
     <modules>
         <module>poker-model</module>
-        <module>poker-common</module>
         <module>poker-client</module>
         <module>poker-server</module>
     </modules>
@@ -32,11 +31,6 @@
             <dependency>
                 <groupId>lab5.patryk</groupId>
                 <artifactId>poker-client</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>lab5.patryk</groupId>
-                <artifactId>poker-common</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

@@ -10,7 +10,7 @@ public class Result {
 
     public Result(List<Card> cards) {
         this.cards = cards;
-        Collections.sort(cards, new SortByRank());
+        Collections.sort(cards, Collections.<Card>reverseOrder(new SortByRank()));
     }
 
     // returns number from 1 to 10 depending on the poker hand ranking

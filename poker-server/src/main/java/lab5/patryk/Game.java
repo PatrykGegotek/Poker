@@ -274,7 +274,7 @@ public class Game {
             client.getPlayer().sortCards();
             cardsToExchange.clear();
         }
-        Server.writeToAll("Your current cards\n");
+        Server.writeToAll("Your current cards:\n");
         showPlayersTheirCards();
     }
 
@@ -286,7 +286,7 @@ public class Game {
             Server.writeToAll(player.showCards());
             Server.writeToAll(player.name + " has " + player.score.details + "\n");
         }
-        Collections.sort(players, new SortByScore());
+        Collections.sort(players, Collections.<Player>reverseOrder(new SortByScore()));
         Player winner = players.get(0);
         Server.writeToAll(winner.name + " wins with " + winner.score.details);
         winner.moneyOnTable = 0;

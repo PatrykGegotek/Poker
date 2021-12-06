@@ -64,7 +64,7 @@ class SortByRank implements Comparator<Card> {
 
     @Override
     public int compare(Card o1, Card o2) {
-        return -1 * o1.rank.compareTo(o2.rank);
+        return o1.rank.compareTo(o2.rank);
     }
 }
 
@@ -72,6 +72,6 @@ class SortBySuit implements Comparator<Card> {
 
     @Override
     public int compare(Card o1, Card o2) {
-        return -1 * o1.suit.compareTo(o2.suit);
+        return o1.suit.compareTo(o2.suit);
     }
 }
