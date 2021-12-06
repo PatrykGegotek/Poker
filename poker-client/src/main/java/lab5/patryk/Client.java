@@ -27,6 +27,9 @@ public class Client
     }
 }
 
+/**
+ * Wątek służący do odbierania wiadomości od serwera
+ */
 class ReadMessage implements Runnable {
     Socket s;
     DataInputStream in;
@@ -54,6 +57,9 @@ class ReadMessage implements Runnable {
     }
 }
 
+/**
+ * Wątek służący do wysyłania wiadomości serwerowi
+ */
 class SendMessage implements Runnable {
     Socket s;
     DataOutputStream out;

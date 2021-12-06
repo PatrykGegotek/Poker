@@ -60,6 +60,9 @@ public class Card {
 
 }
 
+/**
+ * Sortowanie kart po wartościach
+ */
 class SortByRank implements Comparator<Card> {
 
     @Override
@@ -68,6 +71,9 @@ class SortByRank implements Comparator<Card> {
     }
 }
 
+/**
+ * Sortowanie kart po kolorze
+ */
 class SortBySuit implements Comparator<Card> {
 
     @Override

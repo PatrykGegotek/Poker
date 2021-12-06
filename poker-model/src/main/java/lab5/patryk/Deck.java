@@ -15,10 +15,16 @@ public class Deck {
         shuffle();
     }
 
+    /**
+     * Tasowanie kart
+     */
     private void shuffle() {
         Collections.shuffle(deck);
     }
 
+    /**
+     * Zdjęcie jednej kart z wierzchu
+     */
     public Card getCard() {
         Card a = deck.get(0);
         deck.remove(0);
