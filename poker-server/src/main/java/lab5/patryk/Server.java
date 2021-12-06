@@ -5,6 +5,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.InputMismatchException;
 import java.util.Scanner;
 import java.util.Vector;
 
@@ -54,7 +55,18 @@ public class Server {
         ss = new ServerSocket(1234);
         Scanner scanner = new Scanner(System.in);
         System.out.println("How many players are going to play?");
-        amount = scanner.nextInt();
+        do {
+            try {
+                amount = scanner.nextInt();
+                if(amount < 2 || amount > 4) {
+                    System.out.println("Wrong amount! Try again\n");
+                } else break;
+            } catch (InputMismatchException e) {
+                System.out.println("That's not a nummber! Try again\n");
+                scanner.nextLine();
+            }
+        } while (true);
+        System.out.println("Waiting for " + amount + " players to join...\n");
         listenForCLients(amount);
     }
 
@@ -88,6 +100,9 @@ public class Server {
         for (Client client: clients) {
             client.getOut().writeUTF(message);
         }
+        for (Client client: resigned) {
+            client.getOut().writeUTF(message);
+        }
     }
 
 
@@ -104,9 +119,13 @@ public class Server {
             Server.writeToAll("Your cards:\n");
             game.showPlayersTheirCards();
             game.ante();
+            if(clients.size() <= 1) break;
             game.betting();
-            game.cardsExchange();
-            game.betting();
+            if(clients.size() > 1)
+            {
+                game.cardsExchange();
+                game.betting();
+            }
             game.checkWhoWins();
             game.restart();
             System.out.println("Start new game? (y/n): ");

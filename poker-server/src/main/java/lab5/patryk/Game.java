@@ -67,6 +67,26 @@ public class Game {
 
 
     public void ante() throws IOException{
+
+        for (Server.Client client: clients) {
+            if (client.getPlayer().moneyLeft < 100) {
+                client.getOut().writeUTF("You don't have enough money. You're out " +
+                        "of the game!\n");
+                resigned.add(client.getPlayer());
+                players.remove(client.getPlayer());
+                Server.resigned.add(client);
+            }
+        }
+
+        clients.removeAll(Server.resigned);
+
+        if(clients.size() <= 1) {
+            for (Server.Client client: clients) {
+                client.getOut().writeUTF("You win! End of the game!");
+                return;
+            }
+        }
+
         for (Server.Client client: clients) {
             int money = client.getPlayer().moneyLeft;
             client.getOut().writeUTF("Every player must put 100$ on the table\nYou start with " +
@@ -82,7 +102,6 @@ public class Game {
         for (Server.Client client : clients) {
             if (client.getPlayer().isAllIn) continue;
             client.getOut().writeUTF("Do you want to open bet (y/n)? ");
-            System.out.println("hell yeaaahhh");
             message = client.getIn().readUTF();
             System.out.println(message);
 
@@ -217,7 +236,7 @@ public class Game {
                 }
                 // EVENS OUT
                 else if (amount + currPlayer.moneyOnTable == maxMoneyPutByPlayers) {
-                    Server.writeToAll(client.getPlayersName() + " evens out the bet");
+                    Server.writeToAll(client.getPlayersName() + " evens out the bet\n");
                     currPlayer.moneyOnTable += amount;
                     currPlayer.moneyLeft -= amount;
                     moneyOnTable += amount;
@@ -257,7 +276,7 @@ public class Game {
         List<Integer> cardsToExchange = new ArrayList<>();
         showPlayersTheirCards();
         for (Server.Client client: clients) {
-            client.getOut().writeUTF("Choose which cards you'd like to exchange (separate them by a colon)\n");
+            client.getOut().writeUTF("Choose which cards you'd like to exchange (separate them by a comma)\n");
             message = client.getIn().readUTF();
             for (int i = 0; i < message.length(); i++) {
                 if(Character.isDigit(message.charAt(i))) {

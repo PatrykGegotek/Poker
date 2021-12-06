@@ -83,3 +83,9 @@
 <!--        -Dsonar.projectKey=poker \-->
 <!--        -Dsonar.host.url=http://localhost:9000 \-->
 <!--        -Dsonar.login=fbcb666af6a883bf02eb7ff6bf678f93046ed29e-->
+
+<!--FOR WINDOWS:-->
+<!--        mvn clean verify sonar:sonar \-->
+<!--        -Dsonar.projectKey=poker \-->
+<!--        -Dsonar.host.url=http://localhost:9000 \-->
+<!--        -Dsonar.login=0f7491ff8da6c187e7997b7e381835b57a68c608-->
