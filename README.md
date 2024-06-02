@@ -1,4 +1,4 @@
-# Poker
+# Poker in Terminal
 
 Aby uruchomić grę należy:
 - uruchomić poker-server/target/poker-server-1.0-SNAPSHOT-jar-with-dependencies.jar
